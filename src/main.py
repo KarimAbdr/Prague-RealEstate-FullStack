@@ -1,0 +1,13 @@
+from fastapi import FastAPI
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from starlette.requests import Request
+from src.api.endpoints.analytics import router as analytics_router
+app = FastAPI()
+app.include_router(analytics_router, prefix="/api")
+
+templates = Jinja2Templates(directory="src/templates")
+
+@app.get("/analytics-page", response_class=HTMLResponse)
+async def analytics_page(request: Request):
+    return templates.TemplateResponse("analytics.html", {"request": request})

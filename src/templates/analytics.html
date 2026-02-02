@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+        }
+        h2 {
+            text-align: center;
+            color: #555;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: auto;
+        }
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .error {
+            text-align: center;
+            color: red;
+            padding: 20px;
+            display: none;
+        }
+        /* Сетка для графиков */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📊 Prague Real Estate Analytics</h1>
+        
+        <!-- Сетка с двумя графиками -->
+        <div class="charts-grid">
+            
+            <!-- График 1: Количество по планировкам -->
+            <div class="chart-container">
+                <h2>Distribution by Disposition</h2>
+                <div id="loading1" class="loading">Loading data...</div>
+                <div id="error1" class="error"></div>
+                <canvas id="dispositionChart"></canvas>
+            </div>
+            
+            <!-- График 2: Средняя цена по планировкам -->
+            <div class="chart-container">
+                <h2>Average Price by Disposition</h2>
+                <div id="loading2" class="loading">Loading data...</div>
+                <div id="error2" class="error"></div>
+                <canvas id="averagePriceChart"></canvas>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // График 1: Количество по планировкам
+        // ============================================
+        async function fetchDispositionChart() {
+            try {
+                console.log('Загрузка графика 1...');
+                
+                const response = await fetch('/api/analytics/count_by_disposition');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('График 1 - данные:', data);
+                
+                // Скрываем загрузку
+                document.getElementById('loading1').style.display = 'none';
+                
+                // Проверка данных
+                if (!data.labels || data.labels.length === 0) {
+                    document.getElementById('error1').textContent = 'No data';
+                    document.getElementById('error1').style.display = 'block';
+                    return;
+                }
+                
+                // Создаём график
+                const ctx = document.getElementById('dispositionChart').getContext('2d');
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Number of listings',
+                            data: data.values,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 100
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                
+                console.log('График 1 создан успешно!');
+                
+            } catch (error) {
+                console.error('Ошибка графика 1:', error);
+                document.getElementById('loading1').style.display = 'none';
+                document.getElementById('error1').textContent = 'Error: ' + error.message;
+                document.getElementById('error1').style.display = 'block';
+            }
+        }
+
+        // ============================================
+        // График 2: Средняя цена по планировкам
+        // ============================================
+        async function fetchAveragePriceChart() {
+            try {
+                console.log('Загрузка графика 2...');
+                
+                const response = await fetch('/api/analytics/average_price');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('График 2 - данные:', data);
+                
+                // Скрываем загрузку
+                document.getElementById('loading2').style.display = 'none';
+                
+                // Проверка данных
+                if (!data.labels || data.labels.length === 0) {
+                    document.getElementById('error2').textContent = 'No data';
+                    document.getElementById('error2').style.display = 'block';
+                    return;
+                }
+                
+                // Создаём график
+                const ctx = document.getElementById('averagePriceChart').getContext('2d');
+                
+                new Chart(ctx, {
+                    type: 'bar', // Линейный график для средних значений
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Average price (CZK)',
+                            data: data.values,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4 // Плавные линии
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString() + ' CZK';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y.toLocaleString() + ' CZK';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                console.log('График 2 создан успешно!');
+                
+            } catch (error) {
+                console.error('Ошибка графика 2:', error);
+                document.getElementById('loading2').style.display = 'none';
+                document.getElementById('error2').textContent = 'Error: ' + error.message;
+                document.getElementById('error2').style.display = 'block';
+            }
+        }
+
+        // Загружаем оба графика параллельно
+        Promise.all([
+            fetchDispositionChart(),
+            fetchAveragePriceChart()
+        ]).then(() => {
+            console.log('Все графики загружены!');
+        });
+    </script>
+</body>
+</html>

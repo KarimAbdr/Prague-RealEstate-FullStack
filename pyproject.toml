@@ -1,0 +1,25 @@
+[project]
+name = "prague-realty"
+version = "0.1.0"
+description = "Prague Real Estate Market Analysis"
+requires-python = ">=3.11"
+# Зависимости должны быть здесь, внутри [project]
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    "scikit-learn>=1.5.0",
+    "category-encoders>=2.6.0",
+    "joblib>=1.4.0",
+    "httpx>=0.27.0",
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.20.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "requests>=2.32.5",
+    "jinja2>=3.1.6",
+]
+
+[tool.uv]
+package = false
