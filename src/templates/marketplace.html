@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace - Prague Real Estate</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .apartment-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        .apartment-card:hover {
+            transform: translateY(-5px);
+        }
+        .apartment-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        .apartment-details {
+            padding: 20px;
+        }
+        .price-tag {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .roi-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .roi-good {
+            background: #d4edda;
+            color: #155724;
+        }
+        .roi-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .roi-bad {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .pagination-controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        #loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏪 Marketplace - Apartments for Sale</h1>
+        
+        <div class="filters">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">District</label>
+                    <select id="filterDistrict" class="form-select">
+                        <option value="">All Districts</option>
+                        <option value="Praha 1">Praha 1</option>
+                        <option value="Praha 2">Praha 2</option>
+                        <option value="Praha 3">Praha 3</option>
+                        <option value="Praha 4">Praha 4</option>
+                        <option value="Praha 5">Praha 5</option>
+                        <option value="Praha 6">Praha 6</option>
+                        <option value="Praha 7">Praha 7</option>
+                        <option value="Praha 8">Praha 8</option>
+                        <option value="Praha 9">Praha 9</option>
+                        <option value="Praha 10">Praha 10</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Min Price (CZK)</label>
+                    <input type="number" id="filterMinPrice" class="form-control" 
+                           placeholder="e.g. 3000000" step="100000">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Max Price (CZK)</label>
+                    <input type="number" id="filterMaxPrice" class="form-control" 
+                           placeholder="e.g. 8000000" step="100000">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button onclick="applyFilters()" class="btn btn-primary w-100">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="loading">Loading apartments...</div>
+        
+        <div id="apartmentsList" class="row" style="display:none;"></div>
+        
+        <div class="pagination-controls">
+            <button id="prevBtn" onclick="prevPage()" class="btn btn-light me-2" disabled>
+                ← Previous
+            </button>
+            <span id="pageInfo" style="color: white; font-weight: bold;"></span>
+            <button id="nextBtn" onclick="nextPage()" class="btn btn-light ms-2">
+                Next →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 0;        
+        const itemsPerPage = 20;     
+        let currentFilters = {};     
+        
+       
+        async function loadApartments() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('apartmentsList').style.display = 'none';
+                
+                const params = new URLSearchParams({
+                    skip: currentPage * itemsPerPage,  
+                    limit: itemsPerPage,               
+                    ...currentFilters                  
+                });
+                
+                const url = `/api/marketplace?${params}`;
+                console.log('Загрузка:', url);
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const apartments = await response.json();
+                console.log('Получено квартир:', apartments.length);
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                displayApartments(apartments);
+                
+                updatePagination(apartments.length);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<span style="color: red;">Error loading apartments</span>';
+            }
+        }
+        
+        function displayApartments(apartments) {
+            const container = document.getElementById('apartmentsList');
+            container.innerHTML = ''; 
+            
+            if (apartments.length === 0) {
+                container.innerHTML = '<div class="col-12"><p style="color:white; text-align:center;">No apartments found</p></div>';
+                container.style.display = 'block';
+                return;
+            }
+            
+            apartments.forEach(apt => {
+                const card = createApartmentCard(apt);
+                container.appendChild(card);
+            });
+            
+            container.style.display = 'flex';
+        }
+        
+        function createApartmentCard(apt) {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4';
+            
+            let roiClass = 'roi-medium';
+            if (apt.years_to_payback && apt.years_to_payback < 15) {
+                roiClass = 'roi-good'; 
+            } else if (apt.years_to_payback && apt.years_to_payback > 25) {
+                roiClass = 'roi-bad';  
+            }
+            
+            col.innerHTML = `
+                <div class="apartment-card">
+                    <img src="${apt.main_image || 'https://via.placeholder.com/400x250?text=No+Image'}" 
+                         class="apartment-image" 
+                         alt="Apartment">
+                    
+                    <div class="apartment-details">
+                        <h5>${apt.disposition || 'N/A'} • ${apt.surface || 'N/A'} m²</h5>
+                        <p class="text-muted mb-2">
+                            <small>📍 ${apt.district || 'Unknown'}</small>
+                            ${apt.distance_to_metro_km ? 
+                                `<small> • 🚇 ${apt.distance_to_metro_km.toFixed(1)} km to metro</small>` 
+                                : ''}
+                        </p>
+                        
+                        <div class="price-tag">
+                            ${apt.price.toLocaleString()} CZK
+                        </div>
+                        
+                        ${apt.predicted_rent_price ? 
+                            `<p class="mb-1">
+                                <small>Est. Rent: <strong>${Math.round(apt.predicted_rent_price).toLocaleString()} CZK/month</strong></small>
+                            </p>` 
+                            : ''}
+                        
+                        ${apt.years_to_payback ? 
+                            `<span class="roi-badge ${roiClass}">
+                                ROI: ${apt.years_to_payback} years
+                            </span>` 
+                            : ''}
+                        
+                        <button class="btn btn-sm btn-outline-primary mt-3 w-100" 
+                                onclick="viewDetails(${apt.id})">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+        
+        function applyFilters() {
+            currentPage = 0; 
+            currentFilters = {};
+            
+            const district = document.getElementById('filterDistrict').value;
+            const minPrice = document.getElementById('filterMinPrice').value;
+            const maxPrice = document.getElementById('filterMaxPrice').value;
+            
+            if (district) currentFilters.district = district;
+            if (minPrice) currentFilters.min_price = minPrice;
+            if (maxPrice) currentFilters.max_price = maxPrice;
+            
+            loadApartments();
+        }
+        
+        function nextPage() {
+            currentPage++;
+            loadApartments();
+        }
+        
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                loadApartments();
+            }
+        }
+        
+        function updatePagination(count) {
+            document.getElementById('prevBtn').disabled = (currentPage === 0);
+            document.getElementById('nextBtn').disabled = (count < itemsPerPage);
+            document.getElementById('pageInfo').textContent = `Page ${currentPage + 1}`;
+        }
+        
+        function viewDetails(aptId) {
+            alert(`Details for apartment #${aptId} (coming soon)`);
+        }
+        
+        loadApartments();
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

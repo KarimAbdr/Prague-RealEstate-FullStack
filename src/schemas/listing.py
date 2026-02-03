@@ -36,6 +36,6 @@ class BaseListing(BaseModel):
 class RentListing(BaseListing):
     __tablename__ = "rent_listings"
 
-class SellListing(BaseListing):
+class SellListingRead(BaseListing):
     __tablename__ = "sell_listings"
     predicted_rent_price: float | None = None

@@ -11,3 +11,7 @@ templates = Jinja2Templates(directory="src/templates")
 @app.get("/analytics-page", response_class=HTMLResponse)
 async def analytics_page(request: Request):
     return templates.TemplateResponse("analytics.html", {"request": request})
+
+@app.get("/marketplace-page", response_class=HTMLResponse)
+async def marketplace_page(request: Request):
+    return templates.TemplateResponse("marketplace.html", {"request": request})

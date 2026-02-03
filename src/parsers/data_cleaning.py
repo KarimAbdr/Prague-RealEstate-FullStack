@@ -17,6 +17,15 @@ from src.parsers.parser import (
 from src.db import init_db, get_session 
 from src.db import RentListing, SellListing
     
+
+def delete_outliers(df , column, k=1.5):
+    q1 = df.groupby('disposition')[column].transform(lambda s: s.quantile(0.25))
+    q3 = df.groupby('disposition')[column].transform(lambda s: s.quantile(0.75))
+    iqr = q3-q1
+    lo = q1 - k*iqr
+    hi = q3 + k*iqr
+    return df[(df[column] >= lo) & (df[column] <= hi)].copy()
+
 def extract_district(locality):
     if pd.isna(locality):
         return None
