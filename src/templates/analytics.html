@@ -3,33 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Estate Analytics</title>
+    <title>Market Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #e4e4e7;
             padding: 40px 20px;
-            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.2rem 0;
+            margin-bottom: 40px;
+        }
+        .navbar-brand {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #f8fafc;
+            text-align: center;
+            display: block;
         }
         h1 {
             text-align: center;
-            color: white;
+            color: #f8fafc;
             margin-bottom: 50px;
             font-size: 2.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-weight: 700;
         }
         h2 {
             text-align: center;
-            color: #333;
-            margin: 0 0 10px 0;
-            font-size: 1.3rem;
+            color: #f8fafc;
+            margin: 0 0 16px 0;
+            font-size: 1.25rem;
+            font-weight: 600;
         }
         .stats {
             text-align: center;
-            color: #666;
-            font-size: 0.9rem;
+            color: #94a3b8;
+            font-size: 0.875rem;
             margin-bottom: 20px;
         }
         .container {
@@ -38,158 +53,135 @@
             margin: auto;
         }
         .chart-container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 32px;
+            border-radius: 12px;
             margin-bottom: 30px;
         }
         .loading {
             text-align: center;
-            color: #666;
+            color: #94a3b8;
             padding: 20px;
-            font-size: 1.1rem;
         }
         .error {
             text-align: center;
-            color: #dc3545;
+            color: #ef4444;
             padding: 20px;
             display: none;
-            font-weight: 600;
         }
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 30px;
-            margin-top: 20px;
-        }
-        .full-width {
-            grid-column: 1 / -1;
         }
         @media (max-width: 1024px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
+            .charts-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <nav class="navbar">
+        <span class="navbar-brand">Market Analytics Dashboard</span>
+    </nav>
 
     <div class="container">
-        <h1>📊 Prague Real Estate Analytics</h1>
+        <h1>Prague Real Estate Analytics</h1>
         
         <div class="charts-grid">
-            
-            <!-- Chart 1: Count by Disposition -->
             <div class="chart-container">
                 <h2>Distribution by Disposition</h2>
-                <div id="loading1" class="loading">Loading data...</div>
+                <div id="loading1" class="loading">Loading...</div>
                 <div id="error1" class="error"></div>
                 <canvas id="dispositionChart"></canvas>
             </div>
             
-            <!-- Chart 2: Average Price by Disposition -->
             <div class="chart-container">
-                <h2>Average Rent Price by Disposition</h2>
-                <div id="loading2" class="loading">Loading data...</div>
+                <h2>Average Rent by Disposition</h2>
+                <div id="loading2" class="loading">Loading...</div>
                 <div id="error2" class="error"></div>
                 <canvas id="averagePriceChart"></canvas>
             </div>
             
-            <!-- Chart 3: Rent Price Distribution -->
             <div class="chart-container">
                 <h2>Rent Price Distribution</h2>
                 <div id="stats3" class="stats"></div>
-                <div id="loading3" class="loading">Loading data...</div>
+                <div id="loading3" class="loading">Loading...</div>
                 <div id="error3" class="error"></div>
                 <canvas id="rentDistChart"></canvas>
             </div>
             
-            <!-- Chart 4: Sale Price Distribution -->
             <div class="chart-container">
                 <h2>Sale Price Distribution</h2>
                 <div id="stats4" class="stats"></div>
-                <div id="loading4" class="loading">Loading data...</div>
+                <div id="loading4" class="loading">Loading...</div>
                 <div id="error4" class="error"></div>
                 <canvas id="sellDistChart"></canvas>
             </div>
-            
         </div>
     </div>
 
     <script>
-        // ============================================
-        // Chart 1: Distribution by Disposition
-        // ============================================
+        Chart.defaults.color = '#cbd5e1';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
         async function fetchDispositionChart() {
             try {
                 const response = await fetch('/api/analytics/count_by_disposition');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
                 document.getElementById('loading1').style.display = 'none';
-                
                 if (!data.labels || data.labels.length === 0) {
-                    document.getElementById('error1').textContent = 'No data available';
+                    document.getElementById('error1').textContent = 'No data';
                     document.getElementById('error1').style.display = 'block';
                     return;
                 }
-                
-                const ctx = document.getElementById('dispositionChart').getContext('2d');
-                new Chart(ctx, {
+                new Chart(document.getElementById('dispositionChart'), {
                     type: 'bar',
                     data: {
                         labels: data.labels,
                         datasets: [{
-                            label: 'Number of Listings',
+                            label: 'Listings',
                             data: data.values,
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 2
+                            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
-                        scales: { y: { beginAtZero: true } },
+                        scales: { y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } } },
                         plugins: { legend: { display: false } }
                     }
                 });
             } catch (error) {
-                console.error('Chart 1 error:', error);
                 document.getElementById('loading1').style.display = 'none';
                 document.getElementById('error1').textContent = 'Error: ' + error.message;
                 document.getElementById('error1').style.display = 'block';
             }
         }
 
-        // ============================================
-        // Chart 2: Average Price by Disposition
-        // ============================================
         async function fetchAveragePriceChart() {
             try {
                 const response = await fetch('/api/analytics/average_price');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
                 document.getElementById('loading2').style.display = 'none';
-                
                 if (!data.labels || data.labels.length === 0) {
-                    document.getElementById('error2').textContent = 'No data available';
+                    document.getElementById('error2').textContent = 'No data';
                     document.getElementById('error2').style.display = 'block';
                     return;
                 }
-                
-                const ctx = document.getElementById('averagePriceChart').getContext('2d');
-                new Chart(ctx, {
+                new Chart(document.getElementById('averagePriceChart'), {
                     type: 'bar',
                     data: {
                         labels: data.labels,
                         datasets: [{
-                            label: 'Average Price (CZK)',
+                            label: 'Avg Price (CZK)',
                             data: data.values,
-                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 2
+                            backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                            borderColor: '#22c55e',
+                            borderWidth: 1
                         }]
                     },
                     options: {
@@ -197,132 +189,108 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                ticks: {
-                                    callback: value => value.toLocaleString() + ' CZK'
-                                }
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { callback: v => v.toLocaleString() + ' CZK' }
                             }
                         },
                         plugins: { legend: { display: false } }
                     }
                 });
             } catch (error) {
-                console.error('Chart 2 error:', error);
                 document.getElementById('loading2').style.display = 'none';
                 document.getElementById('error2').textContent = 'Error: ' + error.message;
                 document.getElementById('error2').style.display = 'block';
             }
         }
 
-        // ============================================
-        // Chart 3: Rent Price Distribution
-        // ============================================
         async function fetchRentDistChart() {
             try {
                 const response = await fetch('/api/analytics/price_distribution_rent');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
                 document.getElementById('loading3').style.display = 'none';
-                
                 if (!data.labels || data.labels.length === 0) {
-                    document.getElementById('error3').textContent = 'No data available';
+                    document.getElementById('error3').textContent = 'No data';
                     document.getElementById('error3').style.display = 'block';
                     return;
                 }
-                
-            
                 document.getElementById('stats3').innerHTML = 
                     `Total: ${data.total} | Avg: ${data.avg.toLocaleString()} CZK | Range: ${data.min.toLocaleString()} - ${data.max.toLocaleString()} CZK`;
-                
-                const ctx = document.getElementById('rentDistChart').getContext('2d');
-                new Chart(ctx, {
+                new Chart(document.getElementById('rentDistChart'), {
                     type: 'bar',
                     data: {
                         labels: data.labels,
                         datasets: [{
-                            label: 'Number of Apartments',
+                            label: 'Apartments',
                             data: data.values,
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 2
+                            backgroundColor: 'rgba(168, 85, 247, 0.6)',
+                            borderColor: '#a855f7',
+                            borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
                         scales: {
-                            x: { ticks: { maxRotation: 45, minRotation: 45 } },
-                            y: { beginAtZero: true }
+                            x: { ticks: { maxRotation: 45, minRotation: 45 }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                            y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } }
                         },
                         plugins: { legend: { display: false } }
                     }
                 });
             } catch (error) {
-                console.error('Chart 3 error:', error);
                 document.getElementById('loading3').style.display = 'none';
                 document.getElementById('error3').textContent = 'Error: ' + error.message;
                 document.getElementById('error3').style.display = 'block';
             }
         }
 
-        // ============================================
-        // Chart 4: Sale Price Distribution
-        // ============================================
         async function fetchSellDistChart() {
             try {
                 const response = await fetch('/api/analytics/price_distribution_sell');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
                 document.getElementById('loading4').style.display = 'none';
-                
                 if (!data.labels || data.labels.length === 0) {
-                    document.getElementById('error4').textContent = 'No data available';
+                    document.getElementById('error4').textContent = 'No data';
                     document.getElementById('error4').style.display = 'block';
                     return;
                 }
-                
                 document.getElementById('stats4').innerHTML = 
                     `Total: ${data.total} | Avg: ${(data.avg/1000000).toFixed(2)}M CZK | Range: ${(data.min/1000000).toFixed(1)}M - ${(data.max/1000000).toFixed(1)}M CZK`;
-                
-                const ctx = document.getElementById('sellDistChart').getContext('2d');
-                new Chart(ctx, {
+                new Chart(document.getElementById('sellDistChart'), {
                     type: 'bar',
                     data: {
                         labels: data.labels,
                         datasets: [{
-                            label: 'Number of Apartments',
+                            label: 'Apartments',
                             data: data.values,
-                            backgroundColor: 'rgba(153, 102, 255, 0.6)',
-                            borderColor: 'rgba(153, 102, 255, 1)',
-                            borderWidth: 2
+                            backgroundColor: 'rgba(234, 179, 8, 0.6)',
+                            borderColor: '#eab308',
+                            borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
                         scales: {
-                            x: { ticks: { maxRotation: 45, minRotation: 45 } },
-                            y: { beginAtZero: true }
+                            x: { ticks: { maxRotation: 45, minRotation: 45 }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                            y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } }
                         },
                         plugins: { legend: { display: false } }
                     }
                 });
             } catch (error) {
-                console.error('Chart 4 error:', error);
                 document.getElementById('loading4').style.display = 'none';
                 document.getElementById('error4').textContent = 'Error: ' + error.message;
                 document.getElementById('error4').style.display = 'block';
             }
         }
 
-        // Load all charts
         Promise.all([
             fetchDispositionChart(),
             fetchAveragePriceChart(),
             fetchRentDistChart(),
             fetchSellDistChart()
-        ]).then(() => {
-            console.log('All charts loaded!');
-        });
+        ]);
     </script>
 </body>
 </html>

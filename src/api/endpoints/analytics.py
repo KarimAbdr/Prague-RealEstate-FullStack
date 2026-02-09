@@ -148,3 +148,13 @@ def price_distribution_sell(db: Session = Depends(get_db)):
         "max": int(prices_array.max()),
         "avg": int(prices_array.mean())
     }
+
+@router.get("/payback_period_distribution")
+def payback_period_distribution(db: Session = Depends(get_db)):
+    results = db.query(SellListing.price , SellListing.predicted_rent_price).all()
+    payback_periods = []
+    for price, rent_price in results:
+        if price and rent_price and rent_price > 0:
+            anual_price = price/(rent_price * 12)
+            payback_periods.append(round(anual_price,1))
+    

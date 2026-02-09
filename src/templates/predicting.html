@@ -3,32 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prague Rental Predictor</title>
+    <title>Rental Price Predictor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
-        .card { border-radius: 15px; border: none; }
-        .card-header { border-radius: 15px 15px 0 0 !important; }
-        #resultArea { transition: all 0.5s ease-in-out; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #e4e4e7;
+            padding: 60px 0;
+        }
+        .card {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 16px 16px 0 0 !important;
+            padding: 24px;
+        }
+        .card-header h3 {
+            color: white;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        .card-body {
+            padding: 32px;
+        }
+        .form-label {
+            color: #cbd5e1;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .form-control, .form-select {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e4e4e7;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .form-control:focus, .form-select:focus {
+            background: #0f172a;
+            border-color: #3b82f6;
+            color: #e4e4e7;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-check-input {
+            background-color: #0f172a;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .form-check-input:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .form-check-label {
+            color: #cbd5e1;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        #resultArea {
+            background: #0f172a;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        #resultArea p {
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+        }
+        #resultArea h2 {
+            color: #3b82f6;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
-    <div class="container py-5">
+    <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
                 <div class="card shadow-lg">
-                    <div class="card-header bg-primary text-white py-3">
-                        <h3 class="text-center mb-0">🔮 Rental Price Predictor</h3>
+                    <div class="card-header">
+                        <h3 class="text-center">🎯 Rental Price Predictor</h3>
                     </div>
-                    <div class="card-body p-4">
+                    <div class="card-body">
                         <form id="predictForm">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">Surface (m²)</label>
-                                    <input type="number" class="form-control" id="surface" placeholder="e.g. 55" required>
+                                    <label class="form-label">Surface (m²)</label>
+                                    <input type="number" class="form-control" id="surface" placeholder="55" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">Disposition</label>
+                                    <label class="form-label">Layout</label>
                                     <select class="form-select" id="disposition" required>
                                         <option value="">Loading...</option>
                                     </select>
@@ -36,7 +115,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-bold">District</label>
+                                <label class="form-label">District</label>
                                 <select class="form-select" id="district" required>
                                     <option value="">Loading...</option>
                                 </select>
@@ -44,42 +123,44 @@
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">Dist. to Center (km)</label>
+                                    <label class="form-label">Distance to Center (km)</label>
                                     <input type="number" step="0.1" class="form-control" id="distance_to_center" placeholder="2.5" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">Dist. to Metro (km)</label>
+                                    <label class="form-label">Distance to Metro (km)</label>
                                     <input type="number" step="0.1" class="form-control" id="distance_to_metro_km" placeholder="0.4" required>
                                 </div>
                             </div>
 
                             <div class="row mb-4">
-                                <div class="col-6">
+                                <div class="col-4">
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="garage">
                                         <label class="form-check-label">Garage</label>
                                     </div>
+                                </div>
+                                <div class="col-4">
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="balcony">
                                         <label class="form-check-label">Balcony</label>
                                     </div>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-4">
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="mhd">
-                                        <label class="form-check-label text-primary">Public Transport</label>
+                                        <label class="form-check-label">Transit</label>
                                     </div>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm" id="submitBtn">
+                            <button type="submit" class="btn btn-primary w-100" id="submitBtn">
                                 Calculate Prediction
                             </button>
                         </form>
 
-                        <div id="resultArea" class="mt-4 p-3 bg-light border rounded text-center d-none">
-                            <p class="text-muted mb-1">Estimated Monthly Rent</p>
-                            <h2 class="text-primary mb-0"><span id="priceValue">0</span> <small>CZK</small></h2>
+                        <div id="resultArea" class="mt-4 text-center d-none">
+                            <p>Estimated Monthly Rent</p>
+                            <h2><span id="priceValue">0</span> <small style="font-size:1.5rem;">CZK</small></h2>
                         </div>
                     </div>
                 </div>
@@ -101,7 +182,7 @@
                 const dispRes = await fetch('/api/marketplace/dispositions');
                 const dispData = await dispRes.json();
                 const dispSelect = document.getElementById('disposition');
-                dispSelect.innerHTML = '<option value="">Select disposition...</option>';
+                dispSelect.innerHTML = '<option value="">Select layout...</option>';
                 dispData.dispositions.forEach(d => {
                     dispSelect.innerHTML += `<option value="${d}">${d}</option>`;
                 });
@@ -139,17 +220,15 @@
                 });
 
                 const result = await response.json();
-                
                 document.getElementById('priceValue').innerText = Math.round(result.predicted_rent_price).toLocaleString();
                 resultArea.classList.remove('d-none');
             } catch (error) {
-                alert("Error connecting to the server!");
+                alert("Connection error!");
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'Calculate Prediction';
             }
         });
-
 
         loadInitialData();
     </script>
