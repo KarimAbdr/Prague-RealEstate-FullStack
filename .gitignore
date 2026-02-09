@@ -22,7 +22,7 @@ env/
 # Database
 *.sqlite3
 *.db
-data/*.db           # Твоя база: data/realty.db
+data/*.db           
 data/*.sqlite3
 
 !data/.gitkeep

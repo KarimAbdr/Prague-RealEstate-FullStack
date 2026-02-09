@@ -90,7 +90,6 @@
     <script>
         async function loadInitialData() {
             try {
-                // Загружаем районы
                 const distRes = await fetch('/api/marketplace/districts');
                 const distData = await distRes.json();
                 const distSelect = document.getElementById('district');
@@ -99,7 +98,6 @@
                     distSelect.innerHTML += `<option value="${d}">${d}</option>`;
                 });
 
-                // Загружаем планировки
                 const dispRes = await fetch('/api/marketplace/dispositions');
                 const dispData = await dispRes.json();
                 const dispSelect = document.getElementById('disposition');
@@ -112,7 +110,6 @@
             }
         }
 
-        // 2. ОТПРАВКА ДАННЫХ НА ПРЕДСКАЗАНИЕ
         document.getElementById('predictForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -153,7 +150,7 @@
             }
         });
 
-        // Запуск инициализации
+
         loadInitialData();
     </script>
 </body>

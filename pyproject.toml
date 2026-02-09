@@ -3,7 +3,6 @@ name = "prague-realty"
 version = "0.1.0"
 description = "Prague Real Estate Market Analysis"
 requires-python = ">=3.11"
-# Зависимости должны быть здесь, внутри [project]
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
