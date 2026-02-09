@@ -3,6 +3,10 @@ import numpy as np
 import joblib
 from pathlib import Path
 from src.services.my_classes import Encoder
+
+import __main__
+__main__.Encoder = Encoder
+
 class Predictor:
     def __init__(self):
         self.features = ["surface", "distance_to_center", "distance_to_metro_km","garage", "mhd", "balcony", "loggia",
