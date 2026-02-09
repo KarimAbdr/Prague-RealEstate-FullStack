@@ -23,3 +23,7 @@ async def marketplace_page(request: Request):
 @app.get("/predictor-page", response_class=HTMLResponse)
 async def predictor_page(request: Request):
     return templates.TemplateResponse("predicting.html", {"request": request})
+
+@app.get("/", response_class=HTMLResponse)
+async def main_page(request: Request):
+    return templates.TemplateResponse("main.html", {"request": request})
