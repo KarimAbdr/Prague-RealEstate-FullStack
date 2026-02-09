@@ -1,41 +1,79 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Integer
 
-class BaseListing(BaseModel):
-    id: Mapped[int] = mapped_column(Integer , primary_key=True)
+
+class RentListingRead(BaseModel):
+    """
+    Pydantic schema for API responses (NOT for database!)
+    Uses simple Python types: int, str, float, bool
+    """
+    # Basic info
+    id: int
     external_id: str
     source: str
+    
+    # Price
     price: int
-    price_per_m2: float | None = None
-    disposition: str | None = None
-    surface: int | None = None
-    district: str | None = None
-
-    furnishing: str | None = None
+    price_per_m2: Optional[float] = None
+    
+    # Apartment details
+    disposition: Optional[str] = None
+    surface: Optional[int] = None
+    district: Optional[str] = None
+    
+    # Features
+    furnishing: Optional[str] = None
     garage: bool = False
     balcony: bool = False
     loggia: bool = False
     mhd: bool = False
-
-    latitude: float | None = None
-    longitude: float | None = None
-    distance_to_center: float | None = None
-    distance_to_metro_km: float | None = None
-    nearest_metro: str | None = None
-
-    main_image: str | None = None
-    all_images: str | None = None
-
-    class Config:
-        from_attributes = True  
-
     
+    # Location
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    distance_to_center: Optional[float] = None
+    distance_to_metro_km: Optional[float] = None
+    nearest_metro: Optional[str] = None
+    
+    # Images (will be populated by endpoint)
+    main_image: Optional[str] = None
+    all_images: Optional[list] = None  # List of URLs (parsed from JSON string)
+    
+    # Config to work with SQLAlchemy objects
+    model_config = ConfigDict(from_attributes=True)
 
-class RentListing(BaseListing):
-    __tablename__ = "rent_listings"
 
-class SellListingRead(BaseListing):
-    __tablename__ = "sell_listings"
-    predicted_rent_price: float | None = None
+class SellListingRead(BaseModel):
+    """
+    Pydantic schema for API responses
+    Only includes fields that are actually returned by the endpoint
+    """
+    # Basic info
+    id: int
+    price: int
+    
+    # Apartment details
+    disposition: Optional[str] = None
+    surface: Optional[int] = None
+    district: Optional[str] = None
+    furnishing: Optional[str] = None
+    
+    # Location
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    distance_to_center: Optional[float] = None
+    distance_to_metro_km: Optional[float] = None
+    nearest_metro: Optional[str] = None
+    
+    # Images
+    main_image: Optional[str] = None
+    all_images: Optional[list] = None
+    
+    # ML prediction
+    predicted_rent_price: Optional[float] = None
+    
+    # ROI (calculated)
+    years_to_payback: Optional[float] = None
+    
+    # Config
+    model_config = ConfigDict(from_attributes=True)

@@ -8,7 +8,7 @@ import numpy as np
 #Average price by disposition sell and rent (rent done)
 #Price Distribution for rent and sell listings
 #Payback period distribution for sell listings (price / predicted rent price)
-router = APIRouter(prefix="/analytics", tags=["Analytics"])
+router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
 
 def get_db():
     db = get_session()
