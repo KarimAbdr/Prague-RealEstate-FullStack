@@ -164,8 +164,18 @@
         <div class="container">
             <h1>Real Estate Market Intelligence</h1>
             <p>Advanced machine learning platform for Prague rental market analysis and investment decision support</p>
-            <div class="metric-box">
-                Model Performance: R² = 0.85
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 1rem;">
+                <div class="metric-box">
+                    Model Performance: R² = 0.85
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <div class="metric-box">
+                        Model Performance: MAPE = 11.38%
+                    </div>
+                    <span style="font-size: 0.85rem; color: #94a3b8;">
+                        On average, predictions deviate by 11.38% from actual market price
+                    </span>
+                </div>
             </div>
         </div>
     </section>
@@ -208,11 +218,13 @@
                 <span class="tech-tag">FastAPI</span>
                 <span class="tech-tag">Python 3.12</span>
                 <span class="tech-tag">Scikit-Learn</span>
-                <span class="tech-tag">PostgreSQL</span>
+                <span class="tech-tag">SQLite</span>
                 <span class="tech-tag">Docker</span>
                 <span class="tech-tag">SQLAlchemy</span>
                 <span class="tech-tag">Pandas</span>
                 <span class="tech-tag">NumPy</span>
+                <span class="tech-tag">joblib</span>
+                <span class="tech-tag">Pydantic</span>
             </div>
         </div>
     </section>

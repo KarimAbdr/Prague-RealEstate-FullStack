@@ -5,12 +5,13 @@ from typing import List, Optional
 
 from src.db import get_session, SellListing
 from src.schemas.listing import SellListingRead
+from fastapi import HTTPException
+
 
 router = APIRouter(prefix="/api/marketplace", tags=["Marketplace"])
 
 
 def get_db():
-    """Database session dependency"""
     db = get_session()
     try:
         yield db
@@ -30,17 +31,6 @@ def get_marketplace_listings(
     
     db: Session = Depends(get_db)
 ):
-    """
-    Get apartments for sale with filters and pagination
-    
-    Examples:
-    - /api/marketplace/ - first 20 apartments
-    - /api/marketplace/?limit=50 - first 50 apartments
-    - /api/marketplace/?district=Praha 1 - only Praha 1
-    - /api/marketplace/?min_price=3000000&max_price=6000000 - by price range
-    - /api/marketplace/?skip=20&limit=20 - next 20 (page 2)
-    """
-    
     query = db.query(SellListing)
     query = query.filter(SellListing.price >= 500000)
     if district:
@@ -147,3 +137,29 @@ def get_unique_dispositions(db: Session = Depends(get_db)):
         "dispositions": dispositions,
         "total": len(dispositions)
     }
+
+@router.get("/{listing_id}")
+def get_listing_details(listing_id: int, db: Session = Depends(get_db)):
+    listing = db.query(SellListing).filter(SellListing.id == listing_id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    
+    listing_dict = {
+        "id": listing.id,
+        "price": listing.price,
+        "disposition": listing.disposition,
+        "surface": listing.surface,
+        "district": listing.district,
+        "furnishing": listing.furnishing,
+        "latitude": listing.latitude,
+        "longitude": listing.longitude,
+        "distance_to_center": listing.distance_to_center,
+        "distance_to_metro_km": listing.distance_to_metro_km,
+        "nearest_metro": listing.nearest_metro,
+        "main_image": listing.main_image,
+        "predicted_rent_price": listing.predicted_rent_price,
+        "all_images": json.loads(listing.all_images) if listing.all_images else [],
+        "years_to_payback": round(listing.price / (listing.predicted_rent_price * 12), 1)
+            if listing.predicted_rent_price and listing.predicted_rent_price > 0 else None
+    }
+    return listing_dict
