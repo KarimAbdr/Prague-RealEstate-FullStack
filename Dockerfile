@@ -7,6 +7,7 @@ LABEL version="1.0"
 RUN apt-get update && apt-get install -y \
     gcc \
     curl \
+    cron \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -18,10 +19,17 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
+COPY crontab /etc/cron.d/prague-realty
+RUN chmod 0644 /etc/cron.d/prague-realty && \
+    crontab /etc/cron.d/prague-realty
+
+
+RUN touch /var/log/cron.log
+
 RUN mkdir -p /app/data /app/models
 
 EXPOSE 8000
 
 ENV PYTHONUNBUFFERED=1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD cron && uvicorn src.main:app --host 0.0.0.0 --port 8000

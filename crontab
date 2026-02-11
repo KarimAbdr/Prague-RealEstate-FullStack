@@ -1,0 +1,1 @@
+0 3 1 * * cd /app && python -m src.tasks.monthly_update >> /var/log/cron.log 2>&1

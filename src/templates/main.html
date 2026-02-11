@@ -24,6 +24,27 @@
             color: #f8fafc;
             letter-spacing: -0.5px;
         }
+        
+        .next-update-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-left: auto;
+        }
+        .next-update-badge .icon {
+            font-size: 1rem;
+        }
+        .next-update-badge .time {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        
         .hero {
             background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
             padding: 100px 0;
@@ -156,7 +177,13 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <span class="navbar-brand">Prague Real Estate Platform</span>
+            <div style="display: flex; align-items: center; width: 100%;">
+                <span class="navbar-brand">Prague Real Estate Platform</span>
+                <div class="next-update-badge">
+                    <span class="icon">🔄</span>
+                    <span>Next data update in <span class="time" id="countdown">calculating...</span></span>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -234,5 +261,40 @@
             Prague Real Estate Analytics Platform &copy; 2026
         </div>
     </footer>
+
+    <script>
+        function updateCountdown() {
+            const now = new Date();
+            
+            // Следующее 1-е число месяца в 3:00
+            let nextUpdate = new Date(now.getFullYear(), now.getMonth() + 1, 1, 3, 0, 0);
+            
+            // Если сейчас уже после 1-го числа 3:00, берём следующий месяц
+            if (now > nextUpdate) {
+                nextUpdate = new Date(now.getFullYear(), now.getMonth() + 2, 1, 3, 0, 0);
+            }
+            
+            const diff = nextUpdate - now;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            let timeString = '';
+            if (days > 0) {
+                timeString = `${days}d ${hours}h`;
+            } else if (hours > 0) {
+                timeString = `${hours}h ${minutes}m`;
+            } else {
+                timeString = `${minutes}m`;
+            }
+            
+            document.getElementById('countdown').textContent = timeString;
+        }
+        
+        // Обновляем каждую минуту
+        updateCountdown();
+        setInterval(updateCountdown, 60000);
+    </script>
 </body>
 </html>

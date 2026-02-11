@@ -150,7 +150,7 @@ def save_to_database(df: pd.DataFrame, listing_type: str):
     
     session.close()
     
-    print(f"   💾 Сохранено: {saved_count}, пропущено (дубликаты): {skipped_count}")
+    print(f"   💾 Saved: {saved_count}, skipped bcs of dublicates: {skipped_count}")
 
 
 def run_cleaning():
