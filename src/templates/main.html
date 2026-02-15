@@ -252,6 +252,7 @@
                 <span class="tech-tag">NumPy</span>
                 <span class="tech-tag">joblib</span>
                 <span class="tech-tag">Pydantic</span>
+                <span class="tech-tag">cron</span>
             </div>
         </div>
     </section>
@@ -266,10 +267,8 @@
         function updateCountdown() {
             const now = new Date();
             
-            // Следующее 1-е число месяца в 3:00
             let nextUpdate = new Date(now.getFullYear(), now.getMonth() + 1, 1, 3, 0, 0);
             
-            // Если сейчас уже после 1-го числа 3:00, берём следующий месяц
             if (now > nextUpdate) {
                 nextUpdate = new Date(now.getFullYear(), now.getMonth() + 2, 1, 3, 0, 0);
             }
@@ -292,7 +291,6 @@
             document.getElementById('countdown').textContent = timeString;
         }
         
-        // Обновляем каждую минуту
         updateCountdown();
         setInterval(updateCountdown, 60000);
     </script>
