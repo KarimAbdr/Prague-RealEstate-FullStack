@@ -20,6 +20,7 @@ env/
 .env.*.local
 
 # Database
+data/chroma/
 *.sqlite3
 *.db
 data/*.db           

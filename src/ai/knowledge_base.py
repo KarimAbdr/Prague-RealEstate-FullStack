@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 
 class KnowledgeBase:
     def __init__(self):
-        self.chroma_client = chromadb.HttpClient(host="localhost", port=8001)
+        self.chroma_client = chromadb.PersistentClient(path="./data/chroma")
         self.colection = self.chroma_client.get_or_create_collection(name="prague_listings", metadata={"hnsw:space": "cosine"})
         self.encoder = SentenceTransformer("all-MiniLM-L6-v2")
    

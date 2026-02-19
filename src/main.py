@@ -5,12 +5,19 @@ from starlette.requests import Request
 from src.api.endpoints.analytics import router as analytics_router
 from src.api.endpoints.marketplace import router as marketplace_router
 from src.api.endpoints.predictor import router as predictor_router
+from src.api.endpoints.chatbot import router as chatbot_router
+
 app = FastAPI()
 app.include_router(analytics_router)
 app.include_router(marketplace_router)
 app.include_router(predictor_router)
+app.include_router(chatbot_router, prefix="/api")
 
 templates = Jinja2Templates(directory="src/templates")
+
+@app.get("/", response_class=HTMLResponse)
+async def main_page(request: Request):
+    return templates.TemplateResponse("main.html", {"request": request})
 
 @app.get("/analytics-page", response_class=HTMLResponse)
 async def analytics_page(request: Request):
@@ -24,6 +31,10 @@ async def marketplace_page(request: Request):
 async def predictor_page(request: Request):
     return templates.TemplateResponse("predicting.html", {"request": request})
 
-@app.get("/", response_class=HTMLResponse)
-async def main_page(request: Request):
-    return templates.TemplateResponse("main.html", {"request": request})
+@app.get("/chatbot", response_class=HTMLResponse)
+async def chatbot_page(request: Request):
+    return templates.TemplateResponse("chatbot.html", {"request": request})
+
+@app.get("/chat", response_class=HTMLResponse)
+async def chat_page(request: Request):
+    return templates.TemplateResponse("chatbot.html", {"request": request})
