@@ -46,22 +46,36 @@ Listings are embedded with `sentence-transformers` and stored in ChromaDB. Gemin
 `FastAPI` `SQLite + SQLAlchemy` `scikit-learn` `ChromaDB` `Gemini API` `sentence-transformers` `Docker` `Pandas` `Pydantic` `Jinja2`
 
 ---
+🏠 Marketplace Overview
+This page displays apartments currently available for sale, integrated with an AI-driven financial analysis tool. For each listing, the platform provides:
+-Estimated Rent: Predicted monthly rental income based on market data.
+-ROI (Return on Investment): A calculated payback period showing how many years it will take for the property to pay for itself through rental yields.
 
-## Running locally
-```bash
-docker compose up --build
-# → http://localhost:8000
-```
+<img width="1461" height="838" alt="Screenshot 2026-03-12 at 20 48 07" src="https://github.com/user-attachments/assets/69232bda-3cbb-4e36-94b6-c7c772b46b99" />
 
-First-time setup (inside the container):
-```bash
-python -m src.parsers.data_cleaning   # scrape & save listings
-python -m src.services.predicting     # predict rent for sale listings
-python -m src.ai.build_kb             # build ChromaDB knowledge base
-```
+---
+🎯 Rental Price Predictor
+This interactive tool allows users to estimate the rental value of any apartment by inputting specific parameters such as surface area, layout, and location.
+-Custom Inputs: Users can toggle features like garage, balcony, or proximity to transit to see how they impact market value.
+-High Accuracy: The underlying Machine Learning model is trained on real-market data, achieving an R2 score of 0.85, ensuring reliable and data-driven estimates.
+
+<img width="1466" height="843" alt="Screenshot 2026-03-12 at 20 46 16" src="https://github.com/user-attachments/assets/68182b1c-2a2a-47ea-bb05-1cfdd0fd4c4d" />
 
 ---
 
-## Project context
+📊 Market Analytics Dashboard
+The dashboard provides a high-level overview of the Prague real estate market through interactive data visualizations. It helps users identify trends and make informed investment decisions.
+-Market Trends: Visualize rent and sale price distributions across different districts.
+-Inventory Analysis: Track the volume of listings by disposition (e.g., 1+kk, 3+1) and geographic location.
+Comparative Stats: Compare average rental yields and prices to identify undervalued areas or high-demand layouts.
 
-Built as a portfolio project during Informatics studies at Czech University of Life Sciences (CULS), Prague. The ML pipeline originated in a bachelor thesis on Prague rental price prediction.
+<img width="1469" height="837" alt="Screenshot 2026-03-12 at 20 45 33" src="https://github.com/user-attachments/assets/409274b5-dea2-43f6-9b95-33e029ccb8a2" />
+
+---
+💬 Prague Real Estate AI Assistant
+The platform features an intelligent chatbot that acts as a personal real estate consultant. Unlike a simple search bar, it understands context and provides data-backed advice.
+-Natural Language Queries: Ask complex questions 
+-RAG-Powered Accuracy: The bot uses Retrieval-Augmented Generation to query the live database of listings and market statistics before generating an answer, ensuring it doesn't "hallucinate" prices.
+-Smart Recommendations: It can compare different districts (e.g., Žižkov vs. Holešovice) and suggest which areas currently offer the best investment potential based on the latest scraped data.
+
+<img width="1459" height="843" alt="Screenshot 2026-03-12 at 20 45 14" src="https://github.com/user-attachments/assets/352a9677-3898-40bf-9bef-888330dbd449" />
